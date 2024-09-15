@@ -21,13 +21,11 @@ pitch_colors = {
     "PitchOut": '#472C30'
 }
 
-
 # Define function to add lines at the origin
 def add_origin_lines(ax):
     """Add lines at the origin to the given axes."""
     ax.axhline(0, color='black', linestyle='-', linewidth=0.75)
     ax.axvline(0, color='black', linestyle='-', linewidth=0.75)
-
 
 # Define function to load data
 @st.cache_data
@@ -60,7 +58,6 @@ def load_data():
     df['CustomGameID'] = df['Date'] + ": " + df['AwayTeam'].str[:3] + " @ " + df['HomeTeam'].str[:3]
 
     return df
-
 
 # Load data
 df = load_data()
@@ -155,11 +152,24 @@ ax.legend(title='Pitch Type', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 st.pyplot(fig)
 
-# Plotting Velocity Distribution
-st.subheader(f"{pitcher}: Velocity Distribution")
+# Plotting Velocity Distribution using Kernel Density Estimate
+st.subheader(f"{pitcher}: Velocity Distribution (KDE)")
 fig, ax = plt.subplots()
-sns.histplot(data=filtered_data, x="RelSpeed", hue="PitchType", palette=pitch_colors, multiple="stack", ax=ax)
-ax.set_title("Velocity Distribution")
+
+# Create a KDE plot for each PitchType
+for pitch_type, color in pitch_colors.items():
+    subset = filtered_data[filtered_data['PitchType'] == pitch_type]
+    if not subset.empty:
+        sns.kdeplot(subset['RelSpeed'], ax=ax, color=color, label=pitch_type, fill=True)
+
+# Set plot title and labels
+ax.set_title("Velocity Distribution (Kernel Density Estimate)")
+ax.set_xlabel("Release Speed (mph)")
+ax.set_ylabel("Density")
+
+# Add legend
+ax.legend(title='Pitch Type')
+
 st.pyplot(fig)
 
 # Plot for Pitch Locations
@@ -201,7 +211,7 @@ fig, ax = plt.subplots()
 
 # Scatter plot for Strike Swinging
 sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                ax=ax)
+                alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
 home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
@@ -218,62 +228,11 @@ ax.set_xlim(-2, 2)
 ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title("Strike Swinging Locations")
+ax.set_title(f"{pitcher}: Strike Swinging")
+ax.set_xlabel("Horizontal Location")
+ax.set_ylabel("Vertical Location")
 
-st.pyplot(fig)
-
-# Plot for Chase Pitches
-st.subheader(f"{pitcher}: Chase Pitches")
-chase_pitches_data = filtered_data[filtered_data['Chase'] == 1]
-fig, ax = plt.subplots()
-
-# Scatter plot for Chase Pitches
-sns.scatterplot(data=chase_pitches_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                ax=ax)
-
-# Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
-add_origin_lines(ax)
-
-# Set axis limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
-ax.set_xticks(np.arange(-2, 2.5, 0.5))
-ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title("Chase Pitches Locations")
-
-st.pyplot(fig)
-
-# Plot for Called Strikes
-st.subheader(f"{pitcher}: Called Strikes")
-called_strikes_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
-fig, ax = plt.subplots()
-
-# Scatter plot for Called Strikes
-sns.scatterplot(data=called_strikes_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                ax=ax)
-
-# Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
-add_origin_lines(ax)
-
-# Set axis limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
-ax.set_xticks(np.arange(-2, 2.5, 0.5))
-ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title("Called Strikes Locations")
+# Add legend
+ax.legend(title='Pitch Type')
 
 st.pyplot(fig)
