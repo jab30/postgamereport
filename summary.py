@@ -21,17 +21,23 @@ pitch_colors = {
     "PitchOut": '#472C30'
 }
 
+
 # Define function to add lines at the origin
 def add_origin_lines(ax):
     """Add lines at the origin to the given axes."""
     ax.axhline(0, color='black', linestyle='-', linewidth=0.75)
     ax.axvline(0, color='black', linestyle='-', linewidth=0.75)
 
+
 # Define function to load data
 @st.cache_data
 def load_data():
-    # Adjust the path as needed for deployment
-    data_file = os.path.join(os.path.dirname(__file__), 'VSGA - Sheet1 (1).csv')
+    # Adjust the path for the deployment environment
+    data_file = 'VSGA - Sheet1 (1).csv'
+    if not os.path.isfile(data_file):
+        st.error(f"Data file {data_file} not found.")
+        return pd.DataFrame()  # Return an empty DataFrame if the file is not found
+
     df = pd.read_csv(data_file)
 
     # Data transformation similar to R code
@@ -55,8 +61,12 @@ def load_data():
 
     return df
 
+
 # Load data
 df = load_data()
+
+if df.empty:
+    st.stop()  # Stop execution if no data is loaded
 
 # Sidebar filters
 pitcher = st.sidebar.selectbox("Select Pitcher", df['Pitcher'].unique())
@@ -65,10 +75,10 @@ batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].uniq
 
 # Filter data based on user inputs
 filtered_data = df[(
-    df['Pitcher'] == pitcher) &
-    (df['CustomGameID'].isin(games)) &
-    (df['BatterSide'].isin(batter_hand))
-]
+                           df['Pitcher'] == pitcher) &
+                   (df['CustomGameID'].isin(games)) &
+                   (df['BatterSide'].isin(batter_hand))
+                   ]
 
 # Define the strike zone boundaries and home plate segments
 strike_zone = pd.DataFrame({
@@ -104,7 +114,9 @@ usage_percentage = filtered_data['PitchType'].value_counts(normalize=True) * 100
 metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(int)  # Round and convert to integer
 
 # Reorder columns
-metrics = metrics[['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate', 'RelHeight', 'RelSide', 'Extension', 'VertApprAngle']]
+metrics = metrics[
+    ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate', 'RelHeight', 'RelSide',
+     'Extension', 'VertApprAngle']]
 # Display metrics with Usage% in front of RelSpeed
 st.dataframe(metrics)
 
@@ -128,7 +140,7 @@ for _, row in avg_breaks.iterrows():
                edgecolor='black',
                s=800,  # Increased size of the circles
                alpha=0.35,  # Lightly shaded (semi-transparent)
-              )
+               )
 
 # Add origin lines
 add_origin_lines(ax)
@@ -155,11 +167,13 @@ st.subheader(f"{pitcher}: Pitch Locations")
 fig, ax = plt.subplots()
 
 # Scatter plot for Pitch Locations
-sns.scatterplot(data=filtered_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, alpha=0.7, size=2.5, ax=ax)
+sns.scatterplot(data=filtered_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
 home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue', alpha=0.3)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
 ax.add_patch(home_plate)
 ax.add_patch(strike_zone_poly)
 
@@ -186,11 +200,13 @@ strike_swinging_data = filtered_data[filtered_data['PitchCall'] == 'StrikeSwingi
 fig, ax = plt.subplots()
 
 # Scatter plot for Strike Swinging
-sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, ax=ax)
+sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                ax=ax)
 
 # Add home plate and strike zone
 home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue', alpha=0.3)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
 ax.add_patch(home_plate)
 ax.add_patch(strike_zone_poly)
 
@@ -212,11 +228,13 @@ chase_pitches_data = filtered_data[filtered_data['Chase'] == 1]
 fig, ax = plt.subplots()
 
 # Scatter plot for Chase Pitches
-sns.scatterplot(data=chase_pitches_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, ax=ax)
+sns.scatterplot(data=chase_pitches_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                ax=ax)
 
 # Add home plate and strike zone
 home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue', alpha=0.3)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
 ax.add_patch(home_plate)
 ax.add_patch(strike_zone_poly)
 
@@ -238,11 +256,13 @@ called_strikes_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled'
 fig, ax = plt.subplots()
 
 # Scatter plot for Called Strikes
-sns.scatterplot(data=called_strikes_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, ax=ax)
+sns.scatterplot(data=called_strikes_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                ax=ax)
 
 # Add home plate and strike zone
 home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue', alpha=0.3)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
 ax.add_patch(home_plate)
 ax.add_patch(strike_zone_poly)
 
