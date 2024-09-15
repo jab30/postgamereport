@@ -254,36 +254,3 @@ ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title("Called Strikes Locations")
 
 st.pyplot(fig)
-
-# Plot for Spin Clock
-st.subheader(f"{pitcher}: Spin Clock")
-
-# Define function to convert degree to clock label
-def degree_to_clock(degrees):
-    labels = ["12:00", "11:00", "10:00", "9:00", "8:00", "7:00", "6:00", "5:00", "4:00", "3:00", "2:00", "1:00"]
-    return [labels[int((d / 30) % 12)] for d in degrees]
-
-# Prepare data for spin clock plot
-spin_clock_data = filtered_data.groupby('PitchType').agg(
-    avgSpinAxis=('SpinAxis', 'mean'),
-    avgSpin=('SpinRate', 'mean')
-).reset_index()
-
-# Create a figure with polar coordinates
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-angles = np.deg2rad(spin_clock_data['avgSpinAxis'].values)
-radii = spin_clock_data['avgSpin'].values
-
-# Create bars
-bars = ax.bar(angles, radii, width=0.1, color=[pitch_colors[pitch] for pitch in spin_clock_data['PitchType']], edgecolor='black')
-
-# Add text labels
-labels = degree_to_clock(spin_clock_data['avgSpinAxis'])
-for bar, label in zip(bars, labels):
-    angle = bar.get_x() + bar.get_width() / 2
-    ax.text(angle, bar.get_height(), label, ha='center', va='bottom')
-
-# Set title
-ax.set_title("Spin Clock")
-
-st.pyplot(fig)
