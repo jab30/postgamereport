@@ -232,6 +232,61 @@ ax.set_title(f"{pitcher}: Strike Swinging")
 ax.set_xlabel("Horizontal Location")
 ax.set_ylabel("Vertical Location")
 
+# Plot for Chase Pitches
+st.subheader(f"{pitcher}: Chase Pitches")
+chase_pitches_data = filtered_data[filtered_data['Chase'] == 1]
+fig, ax = plt.subplots()
+
+# Scatter plot for Chase Pitches
+sns.scatterplot(data=chase_pitches_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                ax=ax)
+
+# Add home plate and strike zone
+home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
+ax.add_patch(home_plate)
+ax.add_patch(strike_zone_poly)
+
+# Add origin lines
+add_origin_lines(ax)
+
+# Set axis limits and labels
+ax.set_xlim(-2, 2)
+ax.set_ylim(0, 5)
+ax.set_xticks(np.arange(-2, 2.5, 0.5))
+ax.set_yticks(np.arange(0, 5.5, 1))
+ax.set_title("Chase Pitches Locations")
+
+st.pyplot(fig)
+
+# Plot for Called Strikes
+st.subheader(f"{pitcher}: Called Strikes")
+called_strikes_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
+fig, ax = plt.subplots()
+
+# Scatter plot for Called Strikes
+sns.scatterplot(data=called_strikes_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                ax=ax)
+
+# Add home plate and strike zone
+home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
+strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
+                           alpha=0.3)
+ax.add_patch(home_plate)
+ax.add_patch(strike_zone_poly)
+
+# Add origin lines
+add_origin_lines(ax)
+
+# Set axis limits and labels
+ax.set_xlim(-2, 2)
+ax.set_ylim(0, 5)
+ax.set_xticks(np.arange(-2, 2.5, 0.5))
+ax.set_yticks(np.arange(0, 5.5, 1))
+ax.set_title("Called Strikes Locations")
+
+
 # Add legend
 ax.legend(title='Pitch Type')
 
