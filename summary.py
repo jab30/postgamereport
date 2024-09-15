@@ -232,6 +232,11 @@ ax.set_title(f"{pitcher}: Strike Swinging")
 ax.set_xlabel("Horizontal Location")
 ax.set_ylabel("Vertical Location")
 
+# Add legend
+ax.legend(title='Pitch Type')
+
+st.pyplot(fig)
+
 # Plot for Chase Pitches
 st.subheader(f"{pitcher}: Chase Pitches")
 chase_pitches_data = filtered_data[filtered_data['Chase'] == 1]
@@ -285,7 +290,6 @@ ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title("Called Strikes Locations")
-
 
 # Add legend
 ax.legend(title='Pitch Type')
