@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.patches import Polygon
+import os
 
 # Define custom color palette for pitch types
 pitch_colors = {
@@ -26,10 +27,12 @@ def add_origin_lines(ax):
     ax.axhline(0, color='black', linestyle='-', linewidth=0.75)
     ax.axvline(0, color='black', linestyle='-', linewidth=0.75)
 
-# Load the dataset
+# Define function to load data
 @st.cache_data
 def load_data():
-    df = pd.read_csv(r"C:\Users\jdabe\PycharmProjects\streamlit\summary\VSGA - Sheet1 (1).csv")
+    # Adjust the path as needed for deployment
+    data_file = os.path.join(os.path.dirname(__file__), 'VSGA - Sheet1 (1).csv')
+    df = pd.read_csv(data_file)
 
     # Data transformation similar to R code
     df = df.dropna(subset=["HorzBreak"])
@@ -61,8 +64,8 @@ games = st.sidebar.multiselect("Select Game(s)", df['CustomGameID'].unique(), de
 batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].unique(), default=df['BatterSide'].unique())
 
 # Filter data based on user inputs
-filtered_data = df[
-    (df['Pitcher'] == pitcher) &
+filtered_data = df[(
+    df['Pitcher'] == pitcher) &
     (df['CustomGameID'].isin(games)) &
     (df['BatterSide'].isin(batter_hand))
 ]
