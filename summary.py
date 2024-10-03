@@ -136,7 +136,7 @@ for _, row in avg_breaks.iterrows():
                color=pitch_colors[row['PitchType']],
                edgecolor='black',
                s=150,  # Increased size of the circles
-               alpha=1.00,  # Lightly shaded (semi-transparent)
+               alpha=0.75,  # Lightly shaded (semi-transparent)
                )
 
 # Add origin lines
