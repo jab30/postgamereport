@@ -135,8 +135,8 @@ for _, row in avg_breaks.iterrows():
     ax.scatter(row['avgHorzBreak'], row['avgVertBreak'],
                color=pitch_colors[row['PitchType']],
                edgecolor='black',
-               s=100,  # Increased size of the circles
-               alpha=0.50,  # Lightly shaded (semi-transparent)
+               s=200,  # Increased size of the circles
+               alpha=1.00,  # Lightly shaded (semi-transparent)
                )
 
 # Add origin lines
