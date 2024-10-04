@@ -27,18 +27,31 @@ def add_origin_lines(ax):
     ax.axhline(0, color='black', linestyle='-', linewidth=0.75)
     ax.axvline(0, color='black', linestyle='-', linewidth=0.75)
 
+# Strike zone outline function
+def add_strike_zone(ax):
+    # Strike zone outline
+    ax.plot([-10 / 12, 10 / 12], [1.6, 1.6], color='b', linewidth=2)
+    ax.plot([-10 / 12, 10 / 12], [3.5, 3.5], color='b', linewidth=2)
+    ax.plot([-10 / 12, -10 / 12], [1.6, 3.5], color='b', linewidth=2)
+    ax.plot([10 / 12, 10 / 12], [1.6, 3.5], color='b', linewidth=2)
+
+    # Inner Strike zone
+    ax.plot([-10 / 12, 10 / 12], [1.5 + 2 / 3, 1.5 + 2 / 3], color='b', linewidth=1)
+    ax.plot([-10 / 12, 10 / 12], [1.5 + 4 / 3, 1.5 + 4 / 3], color='b', linewidth=1)
+    ax.axvline(10 / 36, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
+    ax.axvline(-10 / 36, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
+
+
 # Define function to load data
 @st.cache_data
 def load_data():
-    # Adjust the path for the deployment environment
     data_file = 'VSGA - Sheet1 (1).csv'
     if not os.path.isfile(data_file):
         st.error(f"Data file {data_file} not found.")
-        return pd.DataFrame()  # Return an empty DataFrame if the file is not found
+        return pd.DataFrame()
 
     df = pd.read_csv(data_file)
 
-    # Data transformation similar to R code
     df = df.dropna(subset=["HorzBreak"])
     df['PitchType'] = df['TaggedPitchType'].replace({
         'Four-Seam': 'Fastball', 'Fastball': 'Fastball',
@@ -48,13 +61,11 @@ def load_data():
         'Cutter': 'Cutter'
     }).fillna('Unknown')
 
-    # Format pitcher names and create custom columns
     df['Pitcher'] = df['Pitcher'].str.replace(r'(\w+), (\w+)', r'\2 \1')
     df['inZone'] = np.where((df['PlateLocHeight'].between(1.6, 3.4)) &
                             (df['PlateLocSide'].between(-0.71, 0.71)), 1, 0)
     df['Chase'] = np.where((df['inZone'] == 0) &
-                           (df['PitchCall'].isin(['FoulBall', 'FoulBallNotFieldable', 'InPlay', 'StrikeSwinging'])), 1,
-                           0)
+                           (df['PitchCall'].isin(['FoulBall', 'FoulBallNotFieldable', 'InPlay', 'StrikeSwinging'])), 1, 0)
     df['CustomGameID'] = df['Date'] + ": " + df['AwayTeam'].str[:3] + " @ " + df['HomeTeam'].str[:3]
 
     return df
@@ -63,7 +74,7 @@ def load_data():
 df = load_data()
 
 if df.empty:
-    st.stop()  # Stop execution if no data is loaded
+    st.stop()
 
 # Sidebar filters
 pitcher = st.sidebar.selectbox("Select Pitcher", df['Pitcher'].unique())
@@ -71,29 +82,12 @@ games = st.sidebar.multiselect("Select Game(s)", df['CustomGameID'].unique(), de
 batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].unique(), default=df['BatterSide'].unique())
 
 # Filter data based on user inputs
-filtered_data = df[(
-                           df['Pitcher'] == pitcher) &
+filtered_data = df[(df['Pitcher'] == pitcher) &
                    (df['CustomGameID'].isin(games)) &
-                   (df['BatterSide'].isin(batter_hand))
-                   ]
-
-# Define the strike zone boundaries and home plate segments
-strike_zone = pd.DataFrame({
-    'x': [-0.71, 0.71, 0.71, -0.71],
-    'y': [1.6, 1.6, 3.5, 3.5]
-})
-
-home_plate_segments = pd.DataFrame({
-    'x': [-0.71, 0.71, 0.71, -0.71, -0.71],
-    'y': [1.6, 1.6, 3.5, 3.5, 1.6],
-    'xend': [-0.71, 0.71, 0.71, -0.71, -0.71],
-    'yend': [3.5, 3.5, 1.6, 1.6, 1.6]
-})
+                   (df['BatterSide'].isin(batter_hand))]
 
 # Display table of key metrics
 st.subheader(f"{pitcher}: Pitch Metrics")
-
-# Calculate metrics
 metrics = filtered_data.groupby('PitchType').agg({
     'RelSpeed': 'mean',
     'InducedVertBreak': 'mean',
@@ -105,193 +99,171 @@ metrics = filtered_data.groupby('PitchType').agg({
     'VertApprAngle': 'mean'
 }).round(2).reset_index()
 
-# Calculate Usage%
 total_pitches = len(filtered_data)
 usage_percentage = filtered_data['PitchType'].value_counts(normalize=True) * 100
-metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(int)  # Round and convert to integer
+metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(int)
 
-# Reorder columns
 metrics = metrics[
     ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate', 'RelHeight', 'RelSide',
      'Extension', 'VertApprAngle']]
-# Display metrics with Usage% in front of RelSpeed
+
 st.dataframe(metrics)
 
 # Plotting Pitch Movement
 st.subheader(f"{pitcher}: Pitch Movement")
 fig, ax = plt.subplots()
-
-# Scatter plot for Pitch Movement
 sns.scatterplot(data=filtered_data, x="HorzBreak", y="InducedVertBreak", hue="PitchType", palette=pitch_colors, ax=ax)
 
-# Calculate average breaks for each pitch type
 avg_breaks = filtered_data.groupby('PitchType').agg(
     avgHorzBreak=('HorzBreak', 'mean'),
     avgVertBreak=('InducedVertBreak', 'mean')
 ).reset_index()
 
-# Plot average breaks as larger, lightly shaded circles
 for _, row in avg_breaks.iterrows():
     ax.scatter(row['avgHorzBreak'], row['avgVertBreak'],
                color=pitch_colors[row['PitchType']],
                edgecolor='black',
-               s=150,  # Increased size of the circles
-               alpha=0.75,  # Lightly shaded (semi-transparent)
-               )
+               s=150,
+               alpha=0.75)
 
-# Add origin lines
 add_origin_lines(ax)
-
-# Set axis limits
 ax.set_xlim(-25, 25)
 ax.set_ylim(-25, 25)
-
-# Set title and legend
 ax.set_title("Pitch Movement (Horizontal vs Vertical Break)")
 ax.legend(title='Pitch Type', bbox_to_anchor=(1.05, 1), loc='upper left')
-
 st.pyplot(fig)
 
-# Plotting Velocity Distribution using Kernel Density Estimate
+# Plotting Velocity Distribution using KDE
 st.subheader(f"{pitcher}: Velocity Distribution (KDE)")
 fig, ax = plt.subplots()
-
-# Create a KDE plot for each PitchType
 for pitch_type, color in pitch_colors.items():
     subset = filtered_data[filtered_data['PitchType'] == pitch_type]
     if not subset.empty:
         sns.kdeplot(subset['RelSpeed'], ax=ax, color=color, label=pitch_type, fill=True)
-
-# Set plot title and labels
 ax.set_title("Velocity Distribution (Kernel Density Estimate)")
 ax.set_xlabel("Release Speed (mph)")
 ax.set_ylabel("Density")
-
-# Add legend
 ax.legend(title='Pitch Type')
-
 st.pyplot(fig)
 
 # Plot for Pitch Locations
 st.subheader(f"{pitcher}: Pitch Locations")
 fig, ax = plt.subplots()
-
-# Scatter plot for Pitch Locations
 sns.scatterplot(data=filtered_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
                 alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
+add_strike_zone(ax)
 add_origin_lines(ax)
 
-# Set axis limits and labels
+# Add the lower plate at plate_y = 0.5
+plate_y = 0.5  # Lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+
+# Set limits and labels
 ax.set_xlim(-2, 2)
 ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title(f"{pitcher}: Pitch Locations")
+ax.set_title(f"{pitcher}: Strike Swinging Locations")
 ax.set_xlabel("Horizontal Location")
 ax.set_ylabel("Vertical Location")
-
-# Add legend
 ax.legend(title='Pitch Type')
-
 st.pyplot(fig)
 
-# Plot for Strike Swinging
-st.subheader(f"{pitcher}: Strike Swinging")
+
+# Plot Strike Swinging Pitches
+st.subheader(f"{pitcher}: Strike Swinging Locations")
 strike_swinging_data = filtered_data[filtered_data['PitchCall'] == 'StrikeSwinging']
 fig, ax = plt.subplots()
-
-# Scatter plot for Strike Swinging
 sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
                 alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
+add_strike_zone(ax)
 add_origin_lines(ax)
 
-# Set axis limits and labels
+# Add the lower plate at plate_y = 0.5
+plate_y = 0.5  # Lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+
+# Set limits and labels
 ax.set_xlim(-2, 2)
 ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title(f"{pitcher}: Strike Swinging")
+ax.set_title(f"{pitcher}: Strike Swinging Locations")
 ax.set_xlabel("Horizontal Location")
 ax.set_ylabel("Vertical Location")
-
-# Add legend
 ax.legend(title='Pitch Type')
-
 st.pyplot(fig)
 
-# Plot for Chase Pitches
-st.subheader(f"{pitcher}: Chase Pitches")
-chase_pitches_data = filtered_data[filtered_data['Chase'] == 1]
-fig, ax = plt.subplots()
 
-# Scatter plot for Chase Pitches
-sns.scatterplot(data=chase_pitches_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                ax=ax)
+# Plot Chase Pitches
+st.subheader(f"{pitcher}: Chase Pitch Locations")
+chase_data = filtered_data[filtered_data['Chase'] == 1]
+fig, ax = plt.subplots()
+sns.scatterplot(data=chase_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
+add_strike_zone(ax)
 add_origin_lines(ax)
 
-# Set axis limits and labels
+# Add the lower plate at plate_y = 0.5
+plate_y = 0.5  # Lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+
+# Set limits and labels
 ax.set_xlim(-2, 2)
 ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title("Chase Pitches Locations")
-
+ax.set_title(f"{pitcher}: Strike Swinging Locations")
+ax.set_xlabel("Horizontal Location")
+ax.set_ylabel("Vertical Location")
+ax.legend(title='Pitch Type')
 st.pyplot(fig)
 
-# Plot for Called Strikes
-st.subheader(f"{pitcher}: Called Strikes")
-called_strikes_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
-fig, ax = plt.subplots()
 
-# Scatter plot for Called Strikes
-sns.scatterplot(data=called_strikes_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                ax=ax)
+# Plot Called Strikes
+st.subheader(f"{pitcher}: Called Strike Locations")
+called_strike_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
+fig, ax = plt.subplots()
+sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
+                alpha=0.7, size=2.5, ax=ax)
 
 # Add home plate and strike zone
-home_plate = Polygon(home_plate_segments[['x', 'y']].values, closed=True, edgecolor='black', fill=None)
-strike_zone_poly = Polygon(strike_zone[['x', 'y']].values, closed=True, edgecolor='black', facecolor='lightblue',
-                           alpha=0.3)
-ax.add_patch(home_plate)
-ax.add_patch(strike_zone_poly)
-
-# Add origin lines
+add_strike_zone(ax)
 add_origin_lines(ax)
 
-# Set axis limits and labels
+# Add the lower plate at plate_y = 0.5
+plate_y = 0.5  # Lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+
+# Set limits and labels
 ax.set_xlim(-2, 2)
 ax.set_ylim(0, 5)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
-ax.set_title("Called Strikes Locations")
-
-# Add legend
+ax.set_title(f"{pitcher}: Strike Swinging Locations")
+ax.set_xlabel("Horizontal Location")
+ax.set_ylabel("Vertical Location")
 ax.legend(title='Pitch Type')
-
 st.pyplot(fig)
