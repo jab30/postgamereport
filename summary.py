@@ -149,12 +149,11 @@ st.pyplot(fig)
 # Plot for Pitch Locations
 st.subheader(f"{pitcher}: Pitch Locations")
 fig, ax = plt.subplots()
-sns.scatterplot(data=filtered_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                alpha=0.7, size=2.5, ax=ax)
+sns.scatterplot(data=filtered_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,)
 
 # Add home plate and strike zone
 add_strike_zone(ax)
-add_origin_lines(ax)
+
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
@@ -180,12 +179,11 @@ st.pyplot(fig)
 st.subheader(f"{pitcher}: Strike Swinging Locations")
 strike_swinging_data = filtered_data[filtered_data['PitchCall'] == 'StrikeSwinging']
 fig, ax = plt.subplots()
-sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                alpha=0.7, size=2.5, ax=ax)
+sns.scatterplot(data=strike_swinging_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,)
 
 # Add home plate and strike zone
 add_strike_zone(ax)
-add_origin_lines(ax)
+
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
@@ -211,12 +209,11 @@ st.pyplot(fig)
 st.subheader(f"{pitcher}: Chase Pitch Locations")
 chase_data = filtered_data[filtered_data['Chase'] == 1]
 fig, ax = plt.subplots()
-sns.scatterplot(data=chase_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                alpha=0.7, size=2.5, ax=ax)
+sns.scatterplot(data=chase_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,)
 
 # Add home plate and strike zone
 add_strike_zone(ax)
-add_origin_lines(ax)
+
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
@@ -242,12 +239,11 @@ st.pyplot(fig)
 st.subheader(f"{pitcher}: Called Strike Locations")
 called_strike_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
 fig, ax = plt.subplots()
-sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,
-                alpha=0.7, size=2.5, ax=ax)
+sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,)
 
 # Add home plate and strike zone
 add_strike_zone(ax)
-add_origin_lines(ax)
+
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
