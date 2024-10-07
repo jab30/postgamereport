@@ -45,7 +45,7 @@ def add_strike_zone(ax):
 # Define function to load data
 @st.cache_data
 def load_data():
-    data_file = 'VSGA - Sheet1 (1).csv'
+    data_file = '20241004-KennesawWalterKelly-Private-1_unverified.csv'
     if not os.path.isfile(data_file):
         st.error(f"Data file {data_file} not found.")
         return pd.DataFrame()
