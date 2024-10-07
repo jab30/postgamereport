@@ -17,7 +17,7 @@ pitch_colors = {
     "ChangeUp": '#F79E70',
     "Splitter": '#90EE32',
     "Cutter": "#BE5FA0",
-    "Unknown": '#9C8975',
+    "Undefined": '#9C8975',
     "PitchOut": '#472C30'
 }
 
@@ -45,30 +45,42 @@ def add_strike_zone(ax):
 # Define function to load data
 @st.cache_data
 def load_data():
-    data_file = '20241004-KennesawWalterKelly-Private-1_unverified.csv'
-    if not os.path.isfile(data_file):
-        st.error(f"Data file {data_file} not found.")
-        return pd.DataFrame()
+    data_files = [
+        '20241004-KennesawWalterKelly-Private-1_unverified.csv',
+        '20241005-KennesawWalterKelly-Private-2_unverified.csv'
+    ]
 
-    df = pd.read_csv(data_file)
+    all_data = pd.DataFrame()
 
-    df = df.dropna(subset=["HorzBreak"])
-    df['PitchType'] = df['TaggedPitchType'].replace({
-        'Four-Seam': 'Fastball', 'Fastball': 'Fastball',
-        'Sinker': 'Sinker', 'Slider': 'Slider',
-        'Sweeper': 'Sweeper', 'Curveball': 'Curveball',
-        'ChangeUp': 'ChangeUp', 'Splitter': 'Splitter',
-        'Cutter': 'Cutter'
-    }).fillna('Unknown')
+    for data_file in data_files:
+        if not os.path.isfile(data_file):
+            st.error(f"Data file {data_file} not found.")
+            return pd.DataFrame()
 
-    df['Pitcher'] = df['Pitcher'].str.replace(r'(\w+), (\w+)', r'\2 \1')
-    df['inZone'] = np.where((df['PlateLocHeight'].between(1.6, 3.4)) &
-                            (df['PlateLocSide'].between(-0.71, 0.71)), 1, 0)
-    df['Chase'] = np.where((df['inZone'] == 0) &
-                           (df['PitchCall'].isin(['FoulBall', 'FoulBallNotFieldable', 'InPlay', 'StrikeSwinging'])), 1, 0)
-    df['CustomGameID'] = df['Date'] + ": " + df['AwayTeam'].str[:3] + " @ " + df['HomeTeam'].str[:3]
+        df = pd.read_csv(data_file)
 
-    return df
+        # Drop rows with missing 'HorzBreak'
+        df = df.dropna(subset=["HorzBreak"])
+        df['PitchType'] = df['TaggedPitchType'].replace({
+            'Four-Seam': 'Fastball', 'Fastball': 'Fastball',
+            'Sinker': 'Sinker', 'Slider': 'Slider',
+            'Sweeper': 'Sweeper', 'Curveball': 'Curveball',
+            'ChangeUp': 'ChangeUp', 'Splitter': 'Splitter',
+            'Cutter': 'Cutter'
+        }).fillna('Unknown')
+
+        df['Pitcher'] = df['Pitcher'].str.replace(r'(\w+), (\w+)', r'\2 \1')
+        df['inZone'] = np.where((df['PlateLocHeight'].between(1.6, 3.4)) &
+                                (df['PlateLocSide'].between(-0.71, 0.71)), 1, 0)
+        df['Chase'] = np.where((df['inZone'] == 0) &
+                               (df['PitchCall'].isin(['FoulBall', 'FoulBallNotFieldable', 'InPlay', 'StrikeSwinging'])),
+                               1, 0)
+        df['CustomGameID'] = df['Date'] + ": " + df['AwayTeam'].str[:3] + " @ " + df['HomeTeam'].str[:3]
+
+        all_data = pd.concat([all_data, df], ignore_index=True)
+
+    return all_data
+
 
 # Load data
 df = load_data()
