@@ -2,8 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import seaborn as sns
 from matplotlib.patches import Polygon
+from matplotlib.patches import Ellipse
 import os
 
 # Define custom color palette for pitch types
@@ -108,7 +110,8 @@ metrics = filtered_data.groupby('PitchType').agg({
     'RelHeight': 'mean',
     'RelSide': 'mean',
     'Extension': 'mean',
-    'VertApprAngle': 'mean'
+    'VertApprAngle': 'mean',
+    'HorzApprAngle': 'mean'
 }).round(2).reset_index()
 
 total_pitches = len(filtered_data)
@@ -117,33 +120,113 @@ metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(in
 
 metrics = metrics[
     ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate', 'RelHeight', 'RelSide',
-     'Extension', 'VertApprAngle']]
+     'Extension', 'VertApprAngle', 'HorzApprAngle']]
 
 st.dataframe(metrics)
 
-# Plotting Pitch Movement
-st.subheader(f"{pitcher}: Pitch Movement")
-fig, ax = plt.subplots()
-sns.scatterplot(data=filtered_data, x="HorzBreak", y="InducedVertBreak", hue="PitchType", palette=pitch_colors, ax=ax)
 
+# Function to draw confidence ellipse
+def confidence_ellipse(x, y, ax, edgecolor, n_std=1.0, facecolor='none', **kwargs):
+    # Calculate mean and covariance
+    cov = np.cov(x, y)
+    mean = [np.mean(x), np.mean(y)]
+
+    # Calculate the eigenvalues and eigenvectors
+    eigvals, eigvecs = np.linalg.eigh(cov)
+    # Sort the eigenvalues and eigenvectors
+    order = eigvals.argsort()[::-1]
+    eigvals, eigvecs = eigvals[order], eigvecs[:, order]
+
+    # Calculate the angle of the ellipse
+    angle = np.arctan2(eigvecs[1, 0], eigvecs[0, 0])
+    angle = np.degrees(angle)
+
+    # Calculate the width and height of the ellipse
+    width, height = 2 * n_std * np.sqrt(eigvals)
+
+    # Create the ellipse
+    ellipse = Ellipse(xy=mean, width=width, height=height,
+                      angle=angle, edgecolor=edgecolor, facecolor=facecolor, **kwargs)
+
+    # Add the ellipse to the plot
+    ax.add_patch(ellipse)
+
+
+# Main plotting function
+st.subheader(f"{pitcher}: Pitch Movement with Confidence Ellipses")
+fig, ax = plt.subplots()
+
+# Scatter plot for actual pitches
+sns.scatterplot(data=filtered_data,
+                x="HorzBreak",
+                y="InducedVertBreak",
+                hue="PitchType",
+                palette=pitch_colors,
+                ax=ax,
+                s=15)
+
+# Calculate average breaks
 avg_breaks = filtered_data.groupby('PitchType').agg(
     avgHorzBreak=('HorzBreak', 'mean'),
-    avgVertBreak=('InducedVertBreak', 'mean')
+    avgVertBreak=('InducedVertBreak', 'mean'),
+    stdHorzBreak=('HorzBreak', 'std'),
+    stdVertBreak=('InducedVertBreak', 'std')
 ).reset_index()
 
-for _, row in avg_breaks.iterrows():
-    ax.scatter(row['avgHorzBreak'], row['avgVertBreak'],
-               color=pitch_colors[row['PitchType']],
-               edgecolor='black',
-               s=150,
-               alpha=0.75)
+# Plot average breaks and confidence ellipses
+for label in avg_breaks['PitchType']:
+    subset = filtered_data[filtered_data['PitchType'] == label]
+    if len(subset) > 4:
+        try:
+            if subset['PitcherThrows'].iloc[0] == 'Right':
+                confidence_ellipse(subset['HorzBreak'], subset['InducedVertBreak'], ax=ax,
+                                   edgecolor=pitch_colors[label], n_std=2, facecolor=pitch_colors[label], alpha=0.2)
+            elif subset['PitcherThrows'].iloc[0] == 'Left':
+                confidence_ellipse(-subset['HorzBreak']*-1, subset['InducedVertBreak'], ax=ax,
+                                   edgecolor=pitch_colors[label], n_std=2, facecolor=pitch_colors[label], alpha=0.2)
+        except ValueError:
+            continue
 
+# Final plot adjustments
 add_origin_lines(ax)
 ax.set_xlim(-25, 25)
 ax.set_ylim(-25, 25)
 ax.set_title("Pitch Movement (Horizontal vs Vertical Break)")
 ax.legend(title='Pitch Type', bbox_to_anchor=(1.05, 1), loc='upper left')
 st.pyplot(fig)
+
+# Plotting Player Release Metrics
+st.subheader(f"{pitcher} Player Release Metrics (Catchers View)")
+fig, ax = plt.subplots()
+
+# Scatter plot for RelSide vs. RelHeight, colored by PitchType
+sns.scatterplot(data=filtered_data,
+                x="RelSide",
+                y="RelHeight",
+                hue="PitchType",
+                palette=pitch_colors,
+                ax=ax,
+                s=20)  # Smaller size for actual pitches
+
+# Set fixed plot limits and labels
+ax.set_xlim(-4, 4)
+ax.set_ylim(0, 8)
+ax.set_title("Player Release Metrics (Release Side vs Release Height)")
+ax.set_xlabel("Release Side (in feet)")
+ax.set_ylabel("Release Height (in feet)")
+
+# Add grid lines at each integer
+for i in range(-4, 5):
+    ax.axvline(x=i, color='gray', linestyle='--', linewidth=0.5)
+for j in range(0, 9):
+    ax.axhline(y=j, color='gray', linestyle='--', linewidth=0.5)
+# Add legend
+ax.legend(title='Pitch Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# Display the plot
+st.pyplot(fig)
+
+
 
 # Plotting Velocity Distribution using KDE
 st.subheader(f"{pitcher}: Velocity Distribution (KDE)")
