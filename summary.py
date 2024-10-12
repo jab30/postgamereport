@@ -102,7 +102,7 @@ filtered_data = df[(df['Pitcher'] == pitcher) &
                    (df['CustomGameID'].isin(games)) &
                    (df['BatterSide'].isin(batter_hand))]
 
-# Display table of key metrics
+# Display table of key metrics with AvgEV and AvgLaunchAngle
 st.subheader(f"{pitcher}: Pitch Metrics")
 metrics = filtered_data.groupby('PitchType').agg({
     'RelSpeed': 'mean',
@@ -113,17 +113,26 @@ metrics = filtered_data.groupby('PitchType').agg({
     'RelSide': 'mean',
     'Extension': 'mean',
     'VertApprAngle': 'mean',
-    'HorzApprAngle': 'mean'
+    'HorzApprAngle': 'mean',
+    'ExitSpeed': 'mean',  # For AvgEV
+    'Angle': 'mean'       # For AvgLaunchAngle
 }).round(2).reset_index()
 
+# Rename the columns for readability
+metrics.rename(columns={'ExitSpeed': 'AvgEV', 'Angle': 'AvgLaunchAngle'}, inplace=True)
+
+# Add Usage Percentage to the metrics table
 total_pitches = len(filtered_data)
 usage_percentage = filtered_data['PitchType'].value_counts(normalize=True) * 100
 metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(int)
 
+# Reorder columns to include AvgEV and AvgLaunchAngle
 metrics = metrics[
-    ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate', 'RelHeight', 'RelSide',
-     'Extension', 'VertApprAngle', 'HorzApprAngle']]
+    ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate',
+     'RelHeight', 'RelSide', 'Extension', 'VertApprAngle', 'HorzApprAngle', 'AvgEV', 'AvgLaunchAngle']
+]
 
+# Display the updated metrics table
 st.dataframe(metrics)
 
 
