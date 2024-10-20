@@ -93,13 +93,18 @@ df = load_data()
 if df.empty:
     st.stop()
 
-# Sidebar filters
-pitcher = st.sidebar.selectbox("Select Pitcher", df['Pitcher'].unique())
+# Filter the dataset for pitchers with 'KEN_OWL' as their team
+ken_owl_pitchers = df[df['PitcherTeam'] == 'KEN_OWL']['Pitcher'].unique()
+
+# Sidebar filter for selecting pitchers
+pitcher = st.sidebar.selectbox("Select Pitcher", ken_owl_pitchers)
+
+# Sidebar filters for other parameters
 games = st.sidebar.multiselect("Select Game(s)", df['CustomGameID'].unique(), default=df['CustomGameID'].unique())
 batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].unique(), default=df['BatterSide'].unique())
 
-filtered_data = df[(df['PitcherTeam'] == 'KEN_OWL') &
-                   (df['Pitcher'] == pitcher) &
+# Filter data based on user inputs
+filtered_data = df[(df['Pitcher'] == pitcher) &
                    (df['CustomGameID'].isin(games)) &
                    (df['BatterSide'].isin(batter_hand))]
 # Display table of key metrics with AvgEV and AvgLaunchAngle
