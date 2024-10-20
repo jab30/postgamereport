@@ -98,11 +98,10 @@ pitcher = st.sidebar.selectbox("Select Pitcher", df['Pitcher'].unique())
 games = st.sidebar.multiselect("Select Game(s)", df['CustomGameID'].unique(), default=df['CustomGameID'].unique())
 batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].unique(), default=df['BatterSide'].unique())
 
-# Filter data based on user inputs
-filtered_data = df[(df['Pitcher'] == pitcher) &
+filtered_data = df[(df['PitcherTeam'] == 'KEN_OWL') &
+                   (df['Pitcher'] == pitcher) &
                    (df['CustomGameID'].isin(games)) &
                    (df['BatterSide'].isin(batter_hand))]
-
 # Display table of key metrics with AvgEV and AvgLaunchAngle
 st.subheader(f"{pitcher}: Pitch Metrics")
 metrics = filtered_data.groupby('PitchType').agg({
