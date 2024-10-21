@@ -26,7 +26,7 @@ def load_data():
 df = load_data()
 
 # Streamlit app
-st.title('Pitch Location Density Plot (Catchers POV)')
+st.title('Pitch Location Density Plot (Pitchers POV)')
 st.sidebar.header('Filter Options')
 
 # Sidebar filters
