@@ -137,12 +137,63 @@ metrics = metrics[
      'RelHeight', 'RelSide', 'Extension', 'VertApprAngle', 'HorzApprAngle', 'AvgEV', 'AvgLaunchAngle']
 ]
 
+# Display table of key metrics with AvgEV and AvgLaunchAngle
+st.subheader(f"{pitcher}: Pitch Metrics")
+metrics = filtered_data.groupby('PitchType').agg({
+    'RelSpeed': 'mean',
+    'InducedVertBreak': 'mean',
+    'HorzBreak': 'mean',
+    'SpinRate': 'mean',
+    'RelHeight': 'mean',
+    'RelSide': 'mean',
+    'Extension': 'mean',
+    'VertApprAngle': 'mean',
+    'HorzApprAngle': 'mean',
+    'ExitSpeed': 'mean',  # For AvgEV
+    'Angle': 'mean'       # For AvgLaunchAngle
+}).round(2).reset_index()
+
+# Rename the columns for readability
+metrics.rename(columns={'ExitSpeed': 'AvgEV', 'Angle': 'AvgLaunchAngle'}, inplace=True)
+
+# Add Usage Percentage to the metrics table
+total_pitches = len(filtered_data)
+usage_percentage = filtered_data['PitchType'].value_counts(normalize=True) * 100
+metrics['Usage%'] = metrics['PitchType'].map(usage_percentage).round().astype(int)
+
+# Reorder columns to include AvgEV and AvgLaunchAngle
+metrics = metrics[
+    ['PitchType', 'Usage%', 'RelSpeed', 'InducedVertBreak', 'HorzBreak', 'SpinRate',
+     'RelHeight', 'RelSide', 'Extension', 'VertApprAngle', 'HorzApprAngle', 'AvgEV', 'AvgLaunchAngle']
+]
+
+# Calculate totals for AvgEV and AvgLaunchAngle, leaving others blank
+totals = pd.DataFrame({
+    'PitchType': ['Total'],
+    'Usage%': [''],
+    'RelSpeed': [''],
+    'InducedVertBreak': [''],
+    'HorzBreak': [''],
+    'SpinRate': [''],
+    'RelHeight': [''],
+    'RelSide': [''],
+    'Extension': [''],
+    'VertApprAngle': [''],
+    'HorzApprAngle': [''],
+    'AvgEV': round(metrics['AvgEV'].mean(), 1),  # Rounded to tenths place
+    'AvgLaunchAngle': round(metrics['AvgLaunchAngle'].mean(), 1)
+}, index=[0])
+
+# Append totals row to the metrics DataFrame
+metrics = pd.concat([metrics, totals], ignore_index=True)
+
 # Display the updated metrics table
 st.dataframe(metrics)
 
 
+
 # Function to draw confidence ellipse
-def confidence_ellipse(x, y, ax, edgecolor, n_std=1.0, facecolor='none', **kwargs):
+def confidence_ellipse(x, y, ax, edgecolor, n_std=0.5, facecolor='none', **kwargs):
     # Calculate mean and covariance
     cov = np.cov(x, y)
     mean = [np.mean(x), np.mean(y)]
