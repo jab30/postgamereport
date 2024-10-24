@@ -125,7 +125,7 @@ csv_files = [
 ]
 
 # Streamlit app layout
-st.title("KEN_OWL Batters Stats")
+st.title("Batter Stats")
 
 # Load data and filter by KEN_OWL team
 data = load_csv(csv_files)
