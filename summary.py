@@ -52,6 +52,8 @@ def load_data():
         '20241005-KennesawWalterKelly-Private-2_unverified.csv',
         '20241010-KennesawWalterKelly-Private-1_unverified.csv',
         '20241011-KennesawWalterKelly-Private-2_unverified.csv',
+        '20241101-KennesawWalterKelly-Private-1_unverified.csv',
+        '20241031-KennesawWalterKelly-Private-1_unverified.csv',
         '20241018-GeorgiaTech-Private-3_unverified.csv'
     ]
 
