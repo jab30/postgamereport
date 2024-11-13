@@ -1,121 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib.patches as patches
-import matplotlib.colors as mcolors
 
-
-# Function to load and filter CSV data
-@st.cache_data
-def load_csv(file_list):
-    data = pd.concat([pd.read_csv(file) for file in file_list])
-    return data[data['BatterTeam'] == 'KEN_OWL']
-
-
-# Calculate wOBA based on PlayResult
-def calculate_woba(batter_data):
-    uBB = len(batter_data[batter_data['PlayResult'] == 'Walk'])  # Unintentional Walks
-    HBP = len(batter_data[batter_data['PlayResult'] == 'HitByPitch'])  # Hit By Pitch
-    single = len(batter_data[batter_data['PlayResult'] == 'Single'])  # Singles
-    double = len(batter_data[batter_data['PlayResult'] == 'Double'])  # Doubles
-    triple = len(batter_data[batter_data['PlayResult'] == 'Triple'])  # Triples
-    HR = len(batter_data[batter_data['PlayResult'] == 'HomeRun'])  # Home Runs
-    SF = len(batter_data[batter_data['PlayResult'] == 'SacFly'])  # Sacrifice Flies
-    IBB = len(batter_data[batter_data['PlayResult'] == 'IntentionalWalk'])  # Intentional Walks
-
-    # wOBA numerator and denominator using weights for 2013
-    numerator = (0.690 * uBB + 0.722 * HBP + 0.888 * single +
-                 1.271 * double + 1.616 * triple + 2.101 * HR)
-
-    # AB + uBB + HBP - IBB + SF is the denominator in the 2013 formula
-    denominator = (len(batter_data) + uBB - IBB + SF + HBP)
-
-    # Calculate wOBA
-    return numerator / denominator if denominator > 0 else 0
-
-
-# Calculate Z-Swing% based on zone criteria
-def calculate_z_swing(batter_data):
-    strike_zone_side = (-1.6, 1.6)
-    strike_zone_height = (-1.6, 3.5)
-
-    # Filter pitches in the zone
-    in_zone = batter_data[
-        (batter_data['PlateLocSide'] >= strike_zone_side[0]) &
-        (batter_data['PlateLocSide'] <= strike_zone_side[1]) &
-        (batter_data['PlateLocHeight'] >= strike_zone_height[0]) &
-        (batter_data['PlateLocHeight'] <= strike_zone_height[1])
-    ]
-
-    total_in_zone = len(in_zone)
-    swings = len(in_zone[in_zone['PitchCall'].isin(['InPlay', 'StrikeSwinging'])])
-
-    return (swings / total_in_zone * 100) if total_in_zone > 0 else 0
-
-
-# Calculate Z-Contact% based on zone criteria
-def calculate_z_contact(batter_data):
-    strike_zone_side = (-1.6, 1.6)
-    strike_zone_height = (-1.6, 3.67)
-
-    # Filter pitches in the zone
-    in_zone = batter_data[
-        (batter_data['PlateLocSide'] >= strike_zone_side[0]) &
-        (batter_data['PlateLocSide'] <= strike_zone_side[1]) &
-        (batter_data['PlateLocHeight'] >= strike_zone_height[0]) &
-        (batter_data['PlateLocHeight'] <= strike_zone_height[1])
-    ]
-
-    # Calculate swings at pitches in the zone
-    swings_in_zone = len(in_zone[in_zone['PitchCall'].isin(['InPlay', 'StrikeSwinging','FoulBallNotFieldable','FoulBallFieldable'])])
-
-    # Calculate swings that made contact
-    contact = len(in_zone[in_zone['PitchCall'] == 'InPlay'])
-
-    return (contact / swings_in_zone * 100) if swings_in_zone > 0 else 0
-
-
-# Calculate SwStr% based on the total number of pitches
-def calculate_swstr(batter_data):
-    total_pitches = len(batter_data)
-    swinging_strikes = len(batter_data[batter_data['PitchCall'] == 'StrikeSwinging'])
-
-    return (swinging_strikes / total_pitches * 100) if total_pitches > 0 else 0
-
-
-# Calculate stats for each batter
-def calculate_batter_stats(data):
-    batters = data['Batter'].unique()
-    batter_stats = []
-
-    for batter in batters:
-        batter_data = data[data['Batter'] == batter]
-
-        total_pitches = len(batter_data)
-        woba = calculate_woba(batter_data)
-        z_contact = calculate_z_contact(batter_data)
-        z_swing = calculate_z_swing(batter_data)
-        swstr = calculate_swstr(batter_data)  # Calculate SwStr%
-
-        avg_ev = batter_data[batter_data['PitchCall'] == 'InPlay']['ExitSpeed'].mean()
-        max_ev = batter_data[batter_data['PitchCall'] == 'InPlay']['ExitSpeed'].max()
-
-        batter_stats.append({
-            'Batter': batter,
-            'Total Pitches': total_pitches,
-            'wOBA': round(woba, 3),
-            'Z-Contact%': round(100 - z_contact, 1),
-            'Z-Swing%': round(100 - z_swing, 1),  # Adjusted to keep the same format
-            'SwStr%': round(swstr, 1),  # Added SwStr%
-            'Avg EV': round(avg_ev, 2),
-            'Max EV': round(max_ev, 2)
-        })
-
-    return pd.DataFrame(batter_stats)
-
-
-# List of CSV files to load
+# Load CSV files into Pandas DataFrames
 csv_files = [
     '20241004-KennesawWalterKelly-Private-1_unverified.csv',
     '20241005-KennesawWalterKelly-Private-2_unverified.csv',
@@ -123,104 +10,109 @@ csv_files = [
     '20241011-KennesawWalterKelly-Private-2_unverified.csv',
     '20241018-GeorgiaTech-Private-3_unverified.csv'
 ]
+data_frames = [pd.read_csv(file) for file in csv_files]
+data = pd.concat(data_frames, ignore_index=True)
+
+# Unique pitchers
+pitchers = data['Pitcher'].unique()
+
+# Pitch type colors
+pitch_colors = {
+    "Fastball": '#ff007d',
+    "Four-Seam": '#ff007d',
+    "Sinker": "#98165D",
+    "Slider": "#67E18D",
+    "Sweeper": "#1BB999",
+    "Curveball": '#3025CE',
+    "ChangeUp": '#F79E70',
+    "Splitter": '#90EE32',
+    "Cutter": "#BE5FA0",
+    "Undefined": '#9C8975',
+    "PitchOut": '#472C30'
+}
 
 # Streamlit app layout
-st.title("Batter Stats")
+st.title("Rel Angle and Strike Zone App")
 
-# Load data and filter by KEN_OWL team
-data = load_csv(csv_files)
+# Pitcher selection
+selected_pitcher = st.selectbox("Select a Pitcher", options=pitchers)
 
-# Sidebar options to select either the leaderboard or search for a player
-option = st.sidebar.selectbox("Select an option", ['Leaderboard', 'Search for Player'])
+# Strike zone section selection
+st.markdown("### Select a Strike Zone Section")
+zone_options = ["All Zones", "Gloveside (Righty)", "Middle (Righty)", "Armside (Righty)"]
+selected_zone = st.radio("Select Zone", options=zone_options)
 
-# Display leaderboard
-if option == 'Leaderboard':
-    st.subheader("Leaderboard: All Batters Stats")
-    batter_stats = calculate_batter_stats(data)
-    st.dataframe(batter_stats)
+# Define zone boundaries
+zone_limits = {
+    "Gloveside (Righty)": (-10 / 12, -3 / 12),
+    "Middle (Righty)": (-3 / 12, 3 / 12),
+    "Armside (Righty)": (3 / 12, 10 / 12)
+}
 
-# Search for a specific player
-elif option == 'Search for Player':
-    st.subheader("Search for a Specific Player")
+# Display the strike zone and home plate as a separate graph
+st.markdown("### Strike Zone with Home Plate")
 
-    # Search bar to enter player's name
-    search_query = st.text_input("Enter Batter's Name:")
+# Plot the strike zone and home plate
+fig, ax = plt.subplots(figsize=(6, 6))
 
-    if search_query:
-        batter_data = data[data['Batter'].str.contains(search_query, case=False)]
+# Strike zone boundaries
+ax.plot([-10 / 12, 10 / 12], [1.6, 1.6], color='blue', linewidth=2)
+ax.plot([-10 / 12, 10 / 12], [3.5, 3.5], color='blue', linewidth=2)
+ax.plot([-10 / 12, -10 / 12], [1.6, 3.5], color='blue', linewidth=2)
+ax.plot([10 / 12, 10 / 12], [1.6, 3.5], color='blue', linewidth=2)
+# Dividing lines for sections
+ax.plot([-3 / 12, -3 / 12], [1.6, 3.5], color='blue', linestyle='--', linewidth=2)
+ax.plot([3 / 12, 3 / 12], [1.6, 3.5], color='blue', linestyle='--', linewidth=2)
 
-        if not batter_data.empty:
-            batter_stats = calculate_batter_stats(batter_data)
-            st.write(f"Stats for: {search_query}")
-            st.dataframe(batter_stats)
+# Home plate configuration
+plate_y = 0.5  # Position for the lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='blue', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='blue', linewidth=2)  # Left side
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='blue', linewidth=2)  # Right side
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='blue', linewidth=2)  # Right triangle
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='blue', linewidth=2)  # Left triangle
 
-            # Create the damage heatmap
-            in_play_data = batter_data[batter_data['PitchCall'] == 'InPlay']
-            if not in_play_data.empty:
-                plt.figure(figsize=(8, 6))
+# Adjust axes to include home plate
+ax.set_xlim(-1, 1)
+ax.set_ylim(0, 4)
+ax.set_xlabel("Plate Location Side")
+ax.set_ylabel("Plate Location Height")
+ax.set_title("Strike Zone with Home Plate (Pitcher's View)")
+st.pyplot(fig)
 
-                # Density plot for damage heatmap
-                sns.kdeplot(
-                    data=in_play_data, x='PlateLocSide', y='PlateLocHeight',
-                    fill=True, cmap='Reds', bw_adjust=0.5
-                )
+# Filter data based on pitcher and selected zone
+if selected_pitcher:
+    filtered_data = data[data['Pitcher'] == selected_pitcher]
 
-                # Add strike zone (assuming standard strike zone dimensions)
-                strike_zone = patches.Rectangle((-0.83, 1.5), 1.66, 2, linewidth=1, edgecolor='blue', facecolor='none')
-                plt.gca().add_patch(strike_zone)
+    # Apply zone filter if a specific zone is selected
+    if selected_zone != "All Zones":
+        x_min, x_max = zone_limits[selected_zone]
+        filtered_data = filtered_data[(filtered_data['PlateLocSide'] >= x_min) &
+                                      (filtered_data['PlateLocSide'] <= x_max) &
+                                      (filtered_data['PlateLocHeight'] >= 1.6) &
+                                      (filtered_data['PlateLocHeight'] <= 3.5)]
 
-                plt.gca().invert_xaxis()  # To reflect pitcher's perspective
-                plt.xlim(-3, 3)  # Fix x-axis
-                plt.ylim(0.5, 5.5)  # Fix y-axis
-                plt.title(f'Damage Heatmap for {search_query}(Pitchers POV)')
-                plt.xlabel('Plate Location Side')
-                plt.ylabel('Plate Location Height')
-                st.pyplot(plt)
-                plt.clf()
+    # Plot the pitches with pitcher-specific axis limits
+    fig, ax = plt.subplots(figsize=(8, 6))
+    for pitch_type, color in pitch_colors.items():
+        pitch_data = filtered_data[filtered_data['TaggedPitchType'] == pitch_type]
+        ax.scatter(
+            pitch_data['HorzRelAngle'],
+            pitch_data['VertRelAngle'],
+            color=color,
+            label=pitch_type,
+            alpha=0.7
+        )
 
-                # Create a custom colormap
-                colors = ["blue", "white", "#be0000"]  # Define the color gradient
-                cmap = mcolors.LinearSegmentedColormap.from_list("custom_cmap", colors, N=100)
+    # Set axis labels and title
+    ax.set_xlabel('Horizontal Approach Angle')
+    ax.set_ylabel('Vertical Approach Angle')
+    ax.set_title(f"Pitch Types for {selected_pitcher}")
 
-                # Scatter plot for Exit Speed
-                plt.figure(figsize=(8, 6))
-                # Normalize the ExitSpeed values to the range [0, 1] for coloring
-                norm = plt.Normalize(in_play_data['ExitSpeed'].min(), in_play_data['ExitSpeed'].max())
+    # Set dynamic axis limits based on filtered data
+    if not filtered_data.empty:
+        ax.set_xlim(filtered_data['HorzRelAngle'].min() - 1, filtered_data['HorzRelAngle'].max() + 1)
+        ax.set_ylim(filtered_data['VertRelAngle'].min() - 1, filtered_data['VertRelAngle'].max() + 1)
 
-                scatter = plt.scatter(
-                    in_play_data['PlateLocSide'], in_play_data['PlateLocHeight'],
-                    c=in_play_data['ExitSpeed'], cmap=cmap, norm=norm, alpha=0.6
-                )
-                plt.colorbar(scatter, label='Exit Speed (mph)')
-
-                # Add strike zone (assuming standard strike zone dimensions)
-                strike_zone = patches.Rectangle((-0.83, 1.5), 1.66, 2, linewidth=1, edgecolor='blue', facecolor='none')
-                plt.gca().add_patch(strike_zone)
-
-                plt.gca().invert_xaxis()  # To reflect pitcher's perspective
-                plt.xlim(-3, 3)  # Fix x-axis
-                plt.ylim(0.5, 5.5)  # Fix y-axis
-                plt.title(f'Exit Velocity Scatter Plot for {search_query} (Pitchers POV)')
-                plt.xlabel('Plate Location Side')
-                plt.ylabel('Plate Location Height')
-
-                # Add tiny text labels for Exit Speed next to each dot
-                for i in range(len(in_play_data)):
-                    plt.text(
-                        in_play_data['PlateLocSide'].iloc[i],
-                        in_play_data['PlateLocHeight'].iloc[i],
-                        f"{in_play_data['ExitSpeed'].iloc[i]:.1f}",  # Format to one decimal place
-                        fontsize=8,  # Tiny text size
-                        ha='right',  # Horizontal alignment
-                        va='bottom',  # Vertical alignment
-                        alpha=0.0  # Slight transparency
-                    )
-
-                st.pyplot(plt)
-                plt.clf()
-
-
-            else:
-                st.write("No 'InPlay' data available for the selected batter.")
-        else:
-            st.write(f"No data found for {search_query}.")
+    ax.legend()
+    st.pyplot(fig)
