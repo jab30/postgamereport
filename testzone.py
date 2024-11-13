@@ -49,37 +49,6 @@ zone_limits = {
     "Armside (Righty)": (3 / 12, 10 / 12)
 }
 
-# Display the strike zone and home plate as a separate graph
-st.markdown("### Strike Zone with Home Plate")
-
-# Plot the strike zone and home plate
-fig, ax = plt.subplots(figsize=(6, 6))
-
-# Strike zone boundaries
-ax.plot([-10 / 12, 10 / 12], [1.6, 1.6], color='blue', linewidth=2)
-ax.plot([-10 / 12, 10 / 12], [3.5, 3.5], color='blue', linewidth=2)
-ax.plot([-10 / 12, -10 / 12], [1.6, 3.5], color='blue', linewidth=2)
-ax.plot([10 / 12, 10 / 12], [1.6, 3.5], color='blue', linewidth=2)
-# Dividing lines for sections
-ax.plot([-3 / 12, -3 / 12], [1.6, 3.5], color='blue', linestyle='--', linewidth=2)
-ax.plot([3 / 12, 3 / 12], [1.6, 3.5], color='blue', linestyle='--', linewidth=2)
-
-# Home plate configuration
-plate_y = 0.5  # Position for the lower plate
-ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='blue', linewidth=2)  # Plate top
-ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='blue', linewidth=2)  # Left side
-ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='blue', linewidth=2)  # Right side
-ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='blue', linewidth=2)  # Right triangle
-ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='blue', linewidth=2)  # Left triangle
-
-# Adjust axes to include home plate
-ax.set_xlim(-1, 1)
-ax.set_ylim(0, 4)
-ax.set_xlabel("Plate Location Side")
-ax.set_ylabel("Plate Location Height")
-ax.set_title("Strike Zone with Home Plate (Pitcher's View)")
-st.pyplot(fig)
-
 # Filter data based on pitcher and selected zone
 if selected_pitcher:
     filtered_data = data[data['Pitcher'] == selected_pitcher]
