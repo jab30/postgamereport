@@ -76,8 +76,8 @@ if selected_pitcher:
         )
 
     # Set axis labels and title
-    ax.set_xlabel('Horizontal Approach Angle')
-    ax.set_ylabel('Vertical Approach Angle')
+    ax.set_xlabel('Horizontal Rel Angle')
+    ax.set_ylabel('Vertical Rel Angle')
     ax.set_title(f"Pitch Types for {selected_pitcher}")
 
     # Set dynamic axis limits based on filtered data
