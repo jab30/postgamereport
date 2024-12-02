@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
-from scipy.stats import gaussian_kde
+import statsmodels.api as sm
 import streamlit as st
 
 # Define pitch type colors
@@ -90,15 +90,17 @@ for feature in features:
 
     # Compute KDE for the selected pitch type
     if len(selected_pitch_data) > 5:
-        selected_kde = gaussian_kde(selected_pitch_data[feature])
+        kde = sm.nonparametric.KDEUnivariate(selected_pitch_data[feature])
+        kde.fit()
         x_vals = np.linspace(selected_pitch_data[feature].min(), selected_pitch_data[feature].max(), 100)
-        ax.plot(x_vals, selected_kde(x_vals), label=f'{selected_pitch_type}', color=pitch_colors.get(selected_pitch_type, 'black'))
+        ax.plot(x_vals, kde.evaluate(x_vals), label=f'{selected_pitch_type}', color=pitch_colors.get(selected_pitch_type, 'black'))
 
     # Compute KDE for the rest of the arsenal
     if len(other_pitches_data) > 5:
-        other_kde = gaussian_kde(other_pitches_data[feature])
-        x_vals = np.linspace(other_pitches_data[feature].min(), other_pitches_data[feature].max(), 100)
-        ax.plot(x_vals, other_kde(x_vals), label='Rest of Arsenal', color='grey', linestyle='--')
+        kde_other = sm.nonparametric.KDEUnivariate(other_pitches_data[feature])
+        kde_other.fit()
+        x_vals_other = np.linspace(other_pitches_data[feature].min(), other_pitches_data[feature].max(), 100)
+        ax.plot(x_vals_other, kde_other.evaluate(x_vals_other), label='Rest of Arsenal', color='grey', linestyle='--')
 
     # Customize the plot
     ax.set_title(f"{feature} Density Comparison", fontsize=14)
