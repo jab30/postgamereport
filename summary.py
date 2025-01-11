@@ -98,14 +98,14 @@ df = load_data()
 if df.empty:
     st.stop()
 # Filter the dataset for pitchers with 'KEN_OWL' as their team
-ken_owl_pitchers = filtered_df[filtered_df['PitcherTeam'] == 'KEN_OWL']['Pitcher'].unique()
+ken_owl_pitchers = df[df['PitcherTeam'] == 'KEN_OWL']['Pitcher'].unique()
 
 # Sidebar filter for selecting pitchers
 pitcher = st.sidebar.selectbox("Select Pitcher", ken_owl_pitchers)
 
 # Sidebar filters for other parameters
-games = st.sidebar.multiselect("Select Game(s)", filtered_df['CustomGameID'].unique(), default=filtered_df['CustomGameID'].unique())
-batter_hand = st.sidebar.multiselect("Select Batter Hand", filtered_df['BatterSide'].unique())
+games = st.sidebar.multiselect("Select Game(s)", df['CustomGameID'].unique(), default=df['CustomGameID'].unique())
+batter_hand = st.sidebar.multiselect("Select Batter Hand", df['BatterSide'].unique(), default=df['BatterSide'].unique())
 
 # Filter data based on user inputs
 filtered_data = df[(df['Pitcher'] == pitcher) &
