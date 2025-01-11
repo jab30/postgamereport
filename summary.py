@@ -97,9 +97,6 @@ df = load_data()
 
 if df.empty:
     st.stop()
-# You can filter the dataset by the selected year
-filtered_df = df[df['Year'] == year]
-
 # Filter the dataset for pitchers with 'KEN_OWL' as their team
 ken_owl_pitchers = filtered_df[filtered_df['PitcherTeam'] == 'KEN_OWL']['Pitcher'].unique()
 
