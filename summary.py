@@ -97,10 +97,6 @@ df = load_data()
 
 if df.empty:
     st.stop()
-
-# Sidebar filter for selecting year
-year = st.sidebar.selectbox("Select Year", df['Year'].unique())
-
 # You can filter the dataset by the selected year
 filtered_df = df[df['Year'] == year]
 
