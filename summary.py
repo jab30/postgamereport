@@ -32,16 +32,16 @@ def add_origin_lines(ax):
 # Strike zone outline function
 def add_strike_zone(ax):
     # Strike zone outline
-    ax.plot([-10 / 12, 10 / 12], [1.6, 1.6], color='b', linewidth=2)
-    ax.plot([-10 / 12, 10 / 12], [3.5, 3.5], color='b', linewidth=2)
-    ax.plot([-10 / 12, -10 / 12], [1.6, 3.5], color='b', linewidth=2)
-    ax.plot([10 / 12, 10 / 12], [1.6, 3.5], color='b', linewidth=2)
+    ax.plot([-1.3, 1.3], [1.6, 1.6], color='b', linewidth=2)
+    ax.plot([-1.3, 1.3], [3.5, 3.5], color='b', linewidth=2)
+    ax.plot([-1.3, -1.3], [1.6, 3.5], color='b', linewidth=2)
+    ax.plot([1.3, 1.3], [1.6, 3.5], color='b', linewidth=2)
 
     # Inner Strike zone
-    ax.plot([-10 / 12, 10 / 12], [1.5 + 2 / 3, 1.5 + 2 / 3], color='b', linewidth=1)
-    ax.plot([-10 / 12, 10 / 12], [1.5 + 4 / 3, 1.5 + 4 / 3], color='b', linewidth=1)
-    ax.axvline(10 / 36, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
-    ax.axvline(-10 / 36, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
+    ax.plot([-1.3, 1.3], [1.5 + 2 / 3, 1.5 + 2 / 3], color='b', linewidth=1)
+    ax.plot([-1.3, 1.3], [1.5 + 4 / 3, 1.5 + 4 / 3], color='b', linewidth=1)
+    ax.axvline(1.3 / 3, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
+    ax.axvline(-1.3 / 3, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
 
 
 # Define function to load data
