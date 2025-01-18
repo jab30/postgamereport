@@ -42,16 +42,6 @@ def add_strike_zone(ax):
 @st.cache_data
 def load_data():
     data_files = [
-        '20241004-KennesawWalterKelly-Private-1_unverified.csv',
-        '20241005-KennesawWalterKelly-Private-2_unverified.csv',
-        '20241010-KennesawWalterKelly-Private-1_unverified.csv',
-        '20241011-KennesawWalterKelly-Private-2_unverified.csv',
-        '20241101-KennesawWalterKelly-Private-1_unverified.csv',
-        '20241031-KennesawWalterKelly-Private-1_unverified.csv',
-        '20241018-GeorgiaTech-Private-3_unverified.csv',
-        '20241118-KennesawWalterKelly-Private-2_unverified.csv',
-        '20241121-KennesawWalterKelly-Private-4_unverified.csv',
-        '20250109-KennesawWalterKelly-Private-1_unverified.csv',
         '20250116-KennesawWalterKelly-Private-1_unverified.csv',
         '20250117-KennesawWalterKelly-Private-1_unverified.csv'
     ]
@@ -395,12 +385,9 @@ st.pyplot(fig)
 # Plot Called Strikes
 st.subheader(f"{pitcher}: Called Strike Locations")
 called_strike_data = filtered_data[filtered_data['PitchCall'] == 'StrikeCalled']
-fig, ax = plt.subplots()
-sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors,)
-
-# Add home plate and strike zone
-add_strike_zone(ax)
-
+fig, ax = plt.subplots()  # Create a new figure and axes for called strikes
+sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, ax=ax)
+add_strike_zone(ax)  # Add strike zone to the correct axes
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
@@ -415,6 +402,32 @@ ax.set_xlim(-3.5, 3.5)
 ax.set_ylim(0, 5.5)
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title(f"{pitcher}: Called Strike Locations")
+ax.set_xlabel("Horizontal Location")
+ax.set_ylabel("Vertical Location")
+ax.legend(title='Pitch Type')
+st.pyplot(fig)
+
+
+# Plot Called Strikes
+st.subheader(f"{pitcher}: Called Ball Locations")
+called_strike_data = filtered_data[filtered_data['PitchCall'] == 'BallCalled']
+fig, ax = plt.subplots()  # Create a new figure and axes for called strikes
+sns.scatterplot(data=called_strike_data, x="PlateLocSide", y="PlateLocHeight", hue="PitchType", palette=pitch_colors, ax=ax)
+add_strike_zone(ax)  # Add strike zone to the correct axes
+
+# Add the lower plate at plate_y = 0.5
+plate_y = 0.5  # Lower plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+
+# Set limits and labels
+ax.set_xlim(-3.5, 3.5)
+ax.set_ylim(0, 5.5)
+ax.set_yticks(np.arange(0, 5.5, 1))
+ax.set_title(f"{pitcher}: Called Ball Locations")
 ax.set_xlabel("Horizontal Location")
 ax.set_ylabel("Vertical Location")
 ax.legend(title='Pitch Type')
