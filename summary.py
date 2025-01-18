@@ -319,13 +319,11 @@ add_strike_zone(ax)
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
-plate_width = 15 / 12  # Convert 15 inches to feet
-
-ax.plot([-plate_width / 2, plate_width / 2], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
-ax.plot([-plate_width / 2, -plate_width / 2 + 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
-ax.plot([plate_width / 2, plate_width / 2 - 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
-ax.plot([plate_width / 2 - 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
-ax.plot([-plate_width / 2 + 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
 ax.set_xlim(-3, 3)
@@ -351,14 +349,11 @@ add_strike_zone(ax)
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
-plate_width = 15 / 12  # Convert 15 inches to feet
-
-ax.plot([-plate_width / 2, plate_width / 2], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
-ax.plot([-plate_width / 2, -plate_width / 2 + 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
-ax.plot([plate_width / 2, plate_width / 2 - 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
-ax.plot([plate_width / 2 - 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
-ax.plot([-plate_width / 2 + 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
-
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 # Set limits and labels
 ax.set_xlim(-3, 3)
 ax.set_ylim(0, 5.5)
@@ -383,14 +378,11 @@ add_strike_zone(ax)
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
-plate_width = 15 / 12  # Convert 15 inches to feet
-
-ax.plot([-plate_width / 2, plate_width / 2], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
-ax.plot([-plate_width / 2, -plate_width / 2 + 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
-ax.plot([plate_width / 2, plate_width / 2 - 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
-ax.plot([plate_width / 2 - 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
-ax.plot([-plate_width / 2 + 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
-
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 # Set limits and labels
 ax.set_xlim(-3, 3)
 ax.set_ylim(0, 5.5)
@@ -415,13 +407,11 @@ add_strike_zone(ax)
 
 # Add the lower plate at plate_y = 0.5
 plate_y = 0.5  # Lower plate
-plate_width = 15 / 12  # Convert 15 inches to feet
-
-ax.plot([-plate_width / 2, plate_width / 2], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
-ax.plot([-plate_width / 2, -plate_width / 2 + 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
-ax.plot([plate_width / 2, plate_width / 2 - 0.25], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
-ax.plot([plate_width / 2 - 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
-ax.plot([-plate_width / 2 + 0.25, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
+ax.plot([-8.5 / 12, 8.5 / 12], [plate_y, plate_y], color='b', linewidth=2)  # Plate top
+ax.plot([-8.5 / 12, -8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Left side of plate
+ax.plot([8.5 / 12, 8.25 / 12], [plate_y, plate_y + 0.15], color='b', linewidth=2)  # Right side of plate
+ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Right triangle of plate
+ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
 ax.set_xlim(-3, 3)
