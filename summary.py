@@ -332,8 +332,8 @@ ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2
 ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
+ax.set_xlim(-3, 3)
+ax.set_ylim(0, 6)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title(f"{pitcher}: Pitch Locations")
@@ -362,8 +362,8 @@ ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2
 ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
+ax.set_xlim(-3, 3)
+ax.set_ylim(0, 6)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title(f"{pitcher}: Strike Swinging Locations")
@@ -392,8 +392,8 @@ ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2
 ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
+ax.set_xlim(-3, 3)
+ax.set_ylim(0, 6)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title(f"{pitcher}: Chase Pitch Locations")
@@ -422,8 +422,8 @@ ax.plot([8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2
 ax.plot([-8.28 / 12, 0], [plate_y + 0.15, plate_y + 0.25], color='b', linewidth=2)  # Left triangle of plate
 
 # Set limits and labels
-ax.set_xlim(-2, 2)
-ax.set_ylim(0, 5)
+ax.set_xlim(-3, 3)
+ax.set_ylim(0, 6)
 ax.set_xticks(np.arange(-2, 2.5, 0.5))
 ax.set_yticks(np.arange(0, 5.5, 1))
 ax.set_title(f"{pitcher}: Called Strike Locations")
