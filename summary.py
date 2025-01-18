@@ -37,12 +37,6 @@ def add_strike_zone(ax):
     ax.plot([-1.3, -1.3], [1.6, 3.5], color='b', linewidth=2)
     ax.plot([1.3, 1.3], [1.6, 3.5], color='b', linewidth=2)
 
-    # Inner Strike zone
-    ax.plot([-1.3, 1.3], [1.5 + 2 / 3, 1.5 + 2 / 3], color='b', linewidth=1)
-    ax.plot([-1.3, 1.3], [1.5 + 4 / 3, 1.5 + 4 / 3], color='b', linewidth=1)
-    ax.axvline(1.3 / 3, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
-    ax.axvline(-1.3 / 3, ymin=(1.6 - 0) / (5 - 0), ymax=(3.5 - 0) / (5 - 0), color='b', linewidth=1)
-
 
 # Define function to load data
 @st.cache_data
