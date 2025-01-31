@@ -32,10 +32,10 @@ def add_origin_lines(ax):
 # Strike zone outline function
 def add_strike_zone(ax):
     # Strike zone outline
-    ax.plot([-1.3, 1.3], [1.6, 1.6], color='b', linewidth=2)
-    ax.plot([-1.3, 1.3], [3.5, 3.5], color='b', linewidth=2)
-    ax.plot([-1.3, -1.3], [1.6, 3.5], color='b', linewidth=2)
-    ax.plot([1.3, 1.3], [1.6, 3.5], color='b', linewidth=2)
+    ax.plot([-1.0, 1.0], [1.6, 1.6], color='b', linewidth=2)
+    ax.plot([-1.0, 1.0], [3.5, 3.5], color='b', linewidth=2)
+    ax.plot([-1.0, -1.0], [1.6, 3.5], color='b', linewidth=2)
+    ax.plot([1.0, 1.0], [1.6, 3.5], color='b', linewidth=2)
 
 
 # Define function to load data
