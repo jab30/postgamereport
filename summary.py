@@ -58,7 +58,8 @@ def load_data():
         '20250130-KennesawWalterKelly-Private-1_unverified.csv',
         '20250214-KennesawWalterKelly-1.csv',
         '20250214-KennesawWalterKelly-2.csv',
-        '20250218-KennesawWalterKelly-1_unverified.csv'
+        '20250218-KennesawWalterKelly-1_unverified.csv',
+        '20250219-KennesawWalterKelly-1_unverified.csv'
     ]
 
     all_data = pd.DataFrame()
